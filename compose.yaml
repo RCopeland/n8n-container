@@ -31,6 +31,12 @@ services:
     container_name: n8n
     restart: unless-stopped
     network_mode: service:tailscale
+    # MagicDNS (100.100.100.100) — tailnet names like *.tail4fde5e.ts.net
+    # only resolve through it; the shared netns' default DNS is plain internet.
+    dns:
+      - 100.100.100.100
+    dns_search:
+      - tail4fde5e.ts.net
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL}
       - GENERIC_TIMEZONE=America/New_York
@@ -55,6 +61,10 @@ services:
     container_name: food-runner
     restart: unless-stopped
     network_mode: service:tailscale
+    dns:
+      - 100.100.100.100
+    dns_search:
+      - tail4fde5e.ts.net
     volumes:
       - /home/rob/Dev/food:/opt/food
       # rw: cart.py persists refreshed OAuth tokens back into credentials.env
