@@ -17,3 +17,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/* \
     && npm install -g n8n@2.28.6 --no-audit --no-fund
 USER node
+
+# the official image's entrypoint is the n8n CLI; the node base has none,
+# so bare `node` (its default CMD) exits immediately without a TTY
+ENTRYPOINT ["n8n"]
+CMD ["start"]
