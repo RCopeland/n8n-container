@@ -1,12 +1,19 @@
-# n8n + python3.
+# n8n 2.28.6 + python3.
 #
-# Base image pinned to the digest that was running before this repo existed
-# (n8n 2.28.6) — building does NOT upgrade n8n, it only adds python3 for
-# Execute Command workflows (food automation scripts are stdlib-only).
-FROM docker.n8n.io/n8nio/n8n@sha256:f3284c9ad6892dc578dadd506d0969adc28046a5e010cb0c3bc892cae1ef292d
+# Why not extend the official image? The official base is an Alpine
+# "hardened" image with no package manager (no apk, no apt) — python3 cannot
+# be added to it. So we build n8n from the official npm package on a plain
+# Debian node base instead:
+#   - n8n@2.28.6 — the exact version the previous deployment ran, so the
+#     existing n8n_data volume (workflows, credentials, encryption key,
+#     SQLite DB) is fully compatible
+#   - glibc base -> prebuilt native modules (better-sqlite3, sharp) work
+#   - python3 for Execute Command workflows (food automation is stdlib-only)
+FROM node:22-bookworm-slim
 
 USER root
 RUN apt-get update \
     && apt-get install -y --no-install-recommends python3 \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && npm install -g n8n@2.28.6 --no-audit --no-fund
 USER node
