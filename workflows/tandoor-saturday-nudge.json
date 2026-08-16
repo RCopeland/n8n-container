@@ -23,18 +23,38 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:8731/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"cmd\":\"build-week\"}",
+        "options": {
+          "timeout": 300000
+        }
+      },
+      "id": "http-build",
+      "name": "Build next week (food-runner)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
         "fromEmail": "REPLACE-FROM-ADDRESS",
         "toEmail": "REPLACE-TO-ADDRESS",
-        "subject": "Saturday ritual: pantry + cart before tomorrow's order",
+        "subject": "Saturday: next week's plan is set — tweak before 8am",
         "emailFormat": "text",
-        "text": "Tomorrow at 8am the weekly Kroger order auto-runs. Do this now (5 minutes):\n\n1. Tandoor: mark foods you actually have as 'on hand' in the pantry (Settings -> Foods or the recipe view)\n2. Tandoor: confirm next week's meal plan is set (Mon-Sun)\n3. Kroger app: clear the cart from last week\n\nThen tomorrow morning n8n builds the delivery list from the plan + pantry and fills the Kroger cart. You still review before checkout."
+        "text": "{{ $json.stdout.split('\\n').filter(l => l.includes('RESULT:')).join('\\n') || 'build-week returned no RESULT line' }}\n\nYour default week was auto-filled from the template (only empty days; anything you already planned or edited is untouched).\n\nReminders (5 minutes):\n1. Tandoor -> Foods: mark what you actually have as 'on hand' — sync subtracts it from the order\n2. Tandoor -> Meal Plan: tweak next week if you want (your edits stick)\n3. Kroger app: clear the cart from last week\n\nTomorrow 8am: n8n syncs plan + pantry into delivery-list.md, fills the Kroger cart, and emails the summary. You still review before checkout."
       },
       "id": "email-nudge",
       "name": "Email: pantry nudge",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
       "position": [
-        220,
+        440,
         0
       ],
       "credentials": {
@@ -47,6 +67,17 @@
   ],
   "connections": {
     "Saturday 6pm": {
+      "main": [
+        [
+          {
+            "node": "Build next week (food-runner)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build next week (food-runner)": {
       "main": [
         [
           {

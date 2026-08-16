@@ -16,6 +16,8 @@ SCRIPTS = {
     "cart": ["python3", "/opt/food/kroger/cart.py", "--json"],
     # read-only validation (searches products, adds nothing to the cart)
     "cart-dry": ["python3", "/opt/food/kroger/cart.py", "--json", "--dry-run"],
+    # fill next Mon-Sun from week_template.json (idempotent: empty days only)
+    "build-week": ["python3", "/opt/food/tandoor/build_week.py", "--json"],
 }
 
 PORT = 8731
