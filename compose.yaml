@@ -13,6 +13,10 @@ services:
       - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_SERVE_CONFIG=/config/ts-serve.json
+      # SOCKS5 proxy for co-tenant containers: the userspace sidecar can't
+      # route tailnet traffic for them (no TUN on this host), so food-runner
+      # reaches Tandoor through this. Resolves MagicDNS names itself.
+      - TS_SOCKS5_SERVER=127.0.0.1:1055
     volumes:
       - tailscale_data:/var/lib/tailscale
       - ./ts-serve.json:/config/ts-serve.json:ro
@@ -31,12 +35,6 @@ services:
     container_name: n8n
     restart: unless-stopped
     network_mode: service:tailscale
-    # MagicDNS (100.100.100.100) — tailnet names like *.tail4fde5e.ts.net
-    # only resolve through it; the shared netns' default DNS is plain internet.
-    dns:
-      - 100.100.100.100
-    dns_search:
-      - tail4fde5e.ts.net
     environment:
       - WEBHOOK_URL=${N8N_WEBHOOK_URL}
       - GENERIC_TIMEZONE=America/New_York
@@ -61,10 +59,9 @@ services:
     container_name: food-runner
     restart: unless-stopped
     network_mode: service:tailscale
-    dns:
-      - 100.100.100.100
-    dns_search:
-      - tail4fde5e.ts.net
+    environment:
+      # route Tandoor API calls through the sidecar's SOCKS5 proxy
+      - TANDOOR_SOCKS5=127.0.0.1:1055
     volumes:
       - /home/rob/Dev/food:/opt/food
       # rw: cart.py persists refreshed OAuth tokens back into credentials.env
