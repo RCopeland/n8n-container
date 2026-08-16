@@ -1,0 +1,53 @@
+services:
+  # --- The Bodyguard (Tailscale) ---
+  # Joins the tailnet as "n8n" and serves the UI at
+  # https://n8n.tail4fde5e.ts.net via `tailscale serve` (NOT funnel — no
+  # public exposure, no published host ports).
+  tailscale:
+    image: tailscale/tailscale:latest
+    container_name: n8n-tailscale
+    hostname: n8n
+    environment:
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_SERVE_CONFIG=/config/ts-serve.json
+    volumes:
+      - tailscale_data:/var/lib/tailscale
+      - ./ts-serve.json:/config/ts-serve.json:ro
+    cap_add:
+      - net_admin
+      - net_raw
+    restart: unless-stopped
+
+  # --- The App (n8n) ---
+  # Custom image: the pinned n8n base + python3 (the food-automation scripts
+  # are stdlib-only and run via Execute Command inside this container).
+  # Shares the tailscale network namespace — only reachable over the tailnet.
+  n8n:
+    build: .
+    image: n8n:local
+    container_name: n8n
+    restart: unless-stopped
+    network_mode: service:tailscale
+    environment:
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL}
+      - GENERIC_TIMEZONE=America/New_York
+    volumes:
+      # Workflows/credentials — EXTERNAL on purpose: this volume pre-dates
+      # this stack (created by the old "neon-crate" deployment) so all
+      # existing workflows carry over when migrating.
+      - n8n_data:/home/node/.n8n
+      # Food automation mounts (primary workflow):
+      #   /opt/food                 — scripts + delivery-list.md (rw: sync writes it)
+      #   ~/.config/kroger|tandoor  — API credentials, read-only
+      - /home/rob/Dev/food:/opt/food
+      - /home/rob/.config/kroger:/home/node/.config/kroger:ro
+      - /home/rob/.config/tandoor:/home/node/.config/tandoor:ro
+    depends_on:
+      - tailscale
+
+# --- Volume Declarations ---
+volumes:
+  tailscale_data:
+  n8n_data:
+    external: true

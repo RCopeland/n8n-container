@@ -1,0 +1,58 @@
+{
+  "name": "Saturday Pantry Nudge",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 18 * * 6"
+            }
+          ]
+        }
+      },
+      "id": "sched-sat",
+      "name": "Saturday 6pm",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0]
+    },
+    {
+      "parameters": {
+        "fromEmail": "REPLACE-FROM-ADDRESS",
+        "toEmail": "REPLACE-TO-ADDRESS",
+        "subject": "Saturday ritual: pantry + cart before tomorrow's order",
+        "emailFormat": "text",
+        "text": "Tomorrow at 8am the weekly Kroger order auto-runs. Do this now (5 minutes):\n\n1. Tandoor: mark foods you actually have as 'on hand' in the pantry (Settings -> Foods or the recipe view)\n2. Tandoor: confirm next week's meal plan is set (Mon-Sun)\n3. Kroger app: clear the cart from last week\n\nThen tomorrow morning n8n builds the delivery list from the plan + pantry and fills the Kroger cart. You still review before checkout."
+      },
+      "id": "email-nudge",
+      "name": "Email: pantry nudge",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2,
+      "position": [220, 0],
+      "credentials": {
+        "emailSmtp": {
+          "id": "",
+          "name": "smtp-food"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Saturday 6pm": {
+      "main": [
+        [
+          {
+            "node": "Email: pantry nudge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
