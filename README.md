@@ -16,8 +16,25 @@ used, so existing workflows/credentials carry over untouched.
 | URL | `https://n8n.tail4fde5e.ts.net` (was `n8n-server-1.tail4fde5e.ts.net`) |
 | Access | Tailnet only (MagicDNS + HTTPS cert) |
 | App port (inside netns) | `5678` (n8n default) |
-| Image | n8n 2.28.6 (pinned digest) + python3 |
+| Image | official n8n, pinned digest (2.28.6) — no custom build |
 | Old workflows | Preserved via `n8n_data` volume |
+
+## Services
+
+| Service | Runs | Notes |
+| --- | --- | --- |
+| `n8n` | official n8n 2.28.6 (pinned digest) | the workflows + credentials live in the external `n8n_data` volume |
+| `food-runner` | `python:3-alpine` + `food-runner.py` | executes the food scripts (see below); python has no place in the node runtime |
+| `tailscale` | tailscale sidecar, hostname `n8n` | all services share its netns |
+
+### Why no custom n8n image?
+
+The official n8n base is a hardened Alpine with **no package manager**, and
+installing n8n@2.28.6 from npm on a stock node base breaks (transitive dep
+`@langchain/core` exports mismatch — n8n's official build uses pnpm + a
+lockfile). So n8n stays 100% official/pinned, and python scripts run in the
+separate `food-runner` container instead. Bonus: cleaner separation for a
+general-purpose instance.
 
 ## Storage layout (host)
 
@@ -47,7 +64,7 @@ used, so existing workflows/credentials carry over untouched.
 4. Bring it up:
 
    ```bash
-   cd ~/Dev/n8n && docker compose up -d --build
+   cd ~/Dev/n8n && docker compose up -d
    ```
 
 5. Verify:
@@ -61,6 +78,22 @@ used, so existing workflows/credentials carry over untouched.
 6. Confirm your old workflows are still there (same `n8n_data` volume), then
    remove the retired `n8n-server-1` node in the Tailscale admin console.
 
+## Food automation
+
+The primary workflow (Sunday 8am):
+
+1. `sync_tandoor.py` — reads the Tandoor meal plan + pantry, regenerates
+   `delivery-list.md` (`/opt/food/delivery-list.md`)
+2. `cart.py --json` — fills the Kroger cart from that list
+3. n8n emails you the summary; you review + checkout in the Kroger app
+
+n8n triggers both via `POST http://127.0.0.1:8731/run` (loopback inside the
+shared netns) — the `food-runner` container executes them. Test the bridge:
+
+```bash
+docker exec food-runner wget -qO- --post-data='{"cmd":"sync"}' http://127.0.0.1:8731/run
+```
+
 ## Importing a workflow
 
 ```bash
@@ -73,8 +106,5 @@ docker exec n8n n8n import:workflow --input=/workflows/tandoor-saturday-nudge.js
 - **Webhook URLs change**: the serve URL moved from `n8n-server-1.tail4fde5e.ts.net`
   to `n8n.tail4fde5e.ts.net` — any existing workflow using webhooks needs its
   webhook URL re-pointed (and `N8N_WEBHOOK_URL` above matches the new base).
-- The food automation is the primary workflow: `sync_tandoor.py` (meal plan +
-  pantry → `delivery-list.md`) then `cart.py --json` (fills the Kroger cart).
-  Both are stdlib-only python3 and run via Execute Command nodes.
-- Updating: `docker compose build --pull && docker compose up -d` (only pulls
-  a new n8n when you intentionally change the pinned digest).
+- Updating n8n intentionally: bump the digest in `compose.yaml`, then
+  `docker compose pull && docker compose up -d`.
