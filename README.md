@@ -64,7 +64,8 @@ used, so existing workflows/credentials carry over untouched.
 ## Importing a workflow
 
 ```bash
-docker exec n8n n8n import:workflow --input=/opt/food/workflows/kroger-weekly-order.json
+docker exec n8n n8n import:workflow --input=/workflows/kroger-weekly-order.json
+docker exec n8n n8n import:workflow --input=/workflows/tandoor-saturday-nudge.json
 ```
 
 ## Notes
