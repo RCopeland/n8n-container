@@ -2,7 +2,9 @@ services:
   # --- The Bodyguard (Tailscale) ---
   # Joins the tailnet as "n8n" and serves the UI at
   # https://n8n.tail4fde5e.ts.net via `tailscale serve` (NOT funnel — no
-  # public exposure, no published host ports).
+  # public exposure, no published host ports). All other services share this
+  # container's network namespace, so they're only reachable over the tailnet
+  # (and via loopback to each other).
   tailscale:
     image: tailscale/tailscale:latest
     container_name: n8n-tailscale
@@ -20,12 +22,12 @@ services:
     restart: unless-stopped
 
   # --- The App (n8n) ---
-  # Custom image: the pinned n8n base + python3 (the food-automation scripts
-  # are stdlib-only and run via Execute Command inside this container).
-  # Shares the tailscale network namespace — only reachable over the tailnet.
+  # Official image, pinned to the digest the previous deployment ran
+  # (n8n 2.28.6) — the n8n_data volume is fully compatible. No custom
+  # build: the official base has no package manager, and npm-installed n8n
+  # has broken transitive deps, so python scripts run in food-runner instead.
   n8n:
-    build: .
-    image: n8n:local
+    image: docker.n8n.io/n8nio/n8n@sha256:f3284c9ad6892dc578dadd506d0969adc28046a5e010cb0c3bc892cae1ef292d
     container_name: n8n
     restart: unless-stopped
     network_mode: service:tailscale
@@ -37,15 +39,28 @@ services:
       # this stack (created by the old "neon-crate" deployment) so all
       # existing workflows carry over when migrating.
       - n8n_data:/home/node/.n8n
-      # Food automation mounts (primary workflow):
-      #   /opt/food                 — scripts + delivery-list.md (rw: sync writes it)
-      #   ~/.config/kroger|tandoor  — API credentials, read-only
-      - /home/rob/Dev/food:/opt/food
-      - /home/rob/.config/kroger:/home/node/.config/kroger:ro
-      - /home/rob/.config/tandoor:/home/node/.config/tandoor:ro
       # workflow JSONs kept in this repo -> importable via:
       #   docker exec n8n n8n import:workflow --input=/workflows/<file>.json
       - ./workflows:/workflows:ro
+    depends_on:
+      - tailscale
+
+  # --- The Executor (food automation scripts) ---
+  # Python has no place in the node runtime, so the food scripts (sync_tandoor,
+  # cart.py) run here, inside the same tailscale netns. n8n triggers them with
+  # an HTTP POST to http://127.0.0.1:8731/run (loopback within the netns —
+  # nothing published, not reachable from outside).
+  food-runner:
+    image: python:3-alpine
+    container_name: food-runner
+    restart: unless-stopped
+    network_mode: service:tailscale
+    volumes:
+      - /home/rob/Dev/food:/opt/food
+      - /home/rob/.config/kroger:/root/.config/kroger:ro
+      - /home/rob/.config/tandoor:/root/.config/tandoor:ro
+      - ./food-runner.py:/food-runner.py:ro
+    command: ["python3", "/food-runner.py"]
     depends_on:
       - tailscale
 

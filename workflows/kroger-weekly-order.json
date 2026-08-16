@@ -20,12 +20,19 @@
     },
     {
       "parameters": {
-        "command": "python3 /opt/food/tandoor/sync_tandoor.py --json 2>&1"
+        "method": "POST",
+        "url": "http://127.0.0.1:8731/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"cmd\":\"sync\"}",
+        "options": {
+          "timeout": 900000
+        }
       },
-      "id": "exec-sync",
-      "name": "Generate delivery list (sync_tandoor)",
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
+      "id": "http-sync",
+      "name": "Run sync_tandoor (food-runner)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [220, 0]
     },
     {
@@ -68,12 +75,19 @@
     },
     {
       "parameters": {
-        "command": "python3 /opt/food/kroger/cart.py --json 2>&1"
+        "method": "POST",
+        "url": "http://127.0.0.1:8731/run",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"cmd\":\"cart\"}",
+        "options": {
+          "timeout": 900000
+        }
       },
-      "id": "exec-cart",
-      "name": "Fill Kroger cart (cart.py)",
-      "type": "n8n-nodes-base.executeCommand",
-      "typeVersion": 1,
+      "id": "http-cart",
+      "name": "Fill Kroger cart (food-runner)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [900, -140]
     },
     {
@@ -160,14 +174,14 @@
       "main": [
         [
           {
-            "node": "Generate delivery list (sync_tandoor)",
+            "node": "Run sync_tandoor (food-runner)",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Generate delivery list (sync_tandoor)": {
+    "Run sync_tandoor (food-runner)": {
       "main": [
         [
           {
@@ -193,7 +207,7 @@
       "main": [
         [
           {
-            "node": "Fill Kroger cart (cart.py)",
+            "node": "Fill Kroger cart (food-runner)",
             "type": "main",
             "index": 0
           }
@@ -207,7 +221,7 @@
         ]
       ]
     },
-    "Fill Kroger cart (cart.py)": {
+    "Fill Kroger cart (food-runner)": {
       "main": [
         [
           {
