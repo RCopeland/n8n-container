@@ -14,6 +14,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 SCRIPTS = {
     "sync": ["python3", "/opt/food/tandoor/sync_tandoor.py", "--json"],
     "cart": ["python3", "/opt/food/kroger/cart.py", "--json"],
+    # read-only validation (searches products, adds nothing to the cart)
+    "cart-dry": ["python3", "/opt/food/kroger/cart.py", "--json", "--dry-run"],
 }
 
 PORT = 8731
