@@ -16,7 +16,10 @@
       "name": "Sunday 8am",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -33,7 +36,10 @@
       "name": "Run sync_tandoor (food-runner)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [220, 0]
+      "position": [
+        220,
+        0
+      ]
     },
     {
       "parameters": {
@@ -43,7 +49,10 @@
       "name": "Parse sync RESULT",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [440, 0]
+      "position": [
+        440,
+        0
+      ]
     },
     {
       "parameters": {
@@ -71,7 +80,10 @@
       "name": "Sync OK?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [660, 0]
+      "position": [
+        660,
+        0
+      ]
     },
     {
       "parameters": {
@@ -88,7 +100,10 @@
       "name": "Fill Kroger cart (food-runner)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [900, -140]
+      "position": [
+        900,
+        -140
+      ]
     },
     {
       "parameters": {
@@ -98,7 +113,10 @@
       "name": "Parse cart RESULT",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1120, -140]
+      "position": [
+        1120,
+        -140
+      ]
     },
     {
       "parameters": {
@@ -126,13 +144,16 @@
       "name": "Cart OK?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
-      "position": [1340, -140]
+      "position": [
+        1340,
+        -140
+      ]
     },
     {
       "parameters": {
         "fromEmail": "REPLACE-FROM-ADDRESS",
         "toEmail": "REPLACE-TO-ADDRESS",
-        "subject": "Kroger order ready — review in the app",
+        "subject": "Kroger order ready \u2014 review in the app",
         "emailFormat": "text",
         "text": "Weekly Kroger order is ready for review.\n\nSync (meal plan -> delivery list):\n{{ $('Parse sync RESULT').item.json.raw }}\n\nCart fill (cart.py):\n{{ $('Parse cart RESULT').item.json.raw }}\n\n1. Open the Kroger app / website\n2. Adjust produce quantities\n3. Confirm substitutions and checkout\n4. Schedule delivery/pickup"
       },
@@ -140,7 +161,10 @@
       "name": "Email: order ready",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
-      "position": [1580, -260],
+      "position": [
+        1580,
+        -260
+      ],
       "credentials": {
         "emailSmtp": {
           "id": "",
@@ -160,7 +184,10 @@
       "name": "Email: failure",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
-      "position": [1580, 140],
+      "position": [
+        1580,
+        140
+      ],
       "credentials": {
         "emailSmtp": {
           "id": "",
@@ -264,5 +291,7 @@
   },
   "settings": {
     "executionOrder": "v1"
-  }
+  },
+  "id": "eu3JjHlk1jeUyn63",
+  "active": false
 }

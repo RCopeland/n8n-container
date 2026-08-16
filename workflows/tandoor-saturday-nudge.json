@@ -16,7 +16,10 @@
       "name": "Saturday 6pm",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [0, 0]
+      "position": [
+        0,
+        0
+      ]
     },
     {
       "parameters": {
@@ -30,7 +33,10 @@
       "name": "Email: pantry nudge",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2,
-      "position": [220, 0],
+      "position": [
+        220,
+        0
+      ],
       "credentials": {
         "emailSmtp": {
           "id": "",
@@ -54,5 +60,7 @@
   },
   "settings": {
     "executionOrder": "v1"
-  }
+  },
+  "id": "blsnWwftvqD7WLXS",
+  "active": false
 }
