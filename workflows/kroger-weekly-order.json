@@ -151,8 +151,8 @@
     },
     {
       "parameters": {
-        "fromEmail": "REPLACE-FROM-ADDRESS",
-        "toEmail": "REPLACE-TO-ADDRESS",
+        "fromEmail": "robcopeland@fastmail.com",
+        "toEmail": "robcopeland@fastmail.com",
         "subject": "Kroger order ready \u2014 review in the app",
         "emailFormat": "text",
         "text": "Weekly Kroger order is ready for review.\n\nSync (meal plan -> delivery list):\n{{ $('Parse sync RESULT').item.json.raw }}\n\nCart fill (cart.py):\n{{ $('Parse cart RESULT').item.json.raw }}\n\n1. Open the Kroger app / website\n2. Adjust produce quantities\n3. Confirm substitutions and checkout\n4. Schedule delivery/pickup"
@@ -174,8 +174,8 @@
     },
     {
       "parameters": {
-        "fromEmail": "REPLACE-FROM-ADDRESS",
-        "toEmail": "REPLACE-TO-ADDRESS",
+        "fromEmail": "robcopeland@fastmail.com",
+        "toEmail": "robcopeland@fastmail.com",
         "subject": "Kroger weekly order FAILED",
         "emailFormat": "text",
         "text": "The weekly order pipeline failed.\n\nOutput:\n{{ $json.raw }}\n\nCheck the n8n execution log for details, fix the cause, and re-run this workflow."
@@ -293,5 +293,5 @@
     "executionOrder": "v1"
   },
   "id": "eu3JjHlk1jeUyn63",
-  "active": false
+  "active": true
 }

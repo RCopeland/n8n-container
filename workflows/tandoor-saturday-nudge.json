@@ -43,11 +43,11 @@
     },
     {
       "parameters": {
-        "fromEmail": "REPLACE-FROM-ADDRESS",
-        "toEmail": "REPLACE-TO-ADDRESS",
-        "subject": "Saturday: next week's plan is set — tweak before 8am",
+        "fromEmail": "robcopeland@fastmail.com",
+        "toEmail": "robcopeland@fastmail.com",
+        "subject": "Saturday: next week's plan is set \u2014 tweak before 8am",
         "emailFormat": "text",
-        "text": "{{ $json.stdout.split('\\n').filter(l => l.includes('RESULT:')).join('\\n') || 'build-week returned no RESULT line' }}\n\nYour default week was auto-filled from the template (only empty days; anything you already planned or edited is untouched).\n\nReminders (5 minutes):\n1. Tandoor -> Foods: mark what you actually have as 'on hand' — sync subtracts it from the order\n2. Tandoor -> Meal Plan: tweak next week if you want (your edits stick)\n3. Kroger app: clear the cart from last week\n\nTomorrow 8am: n8n syncs plan + pantry into delivery-list.md, fills the Kroger cart, and emails the summary. You still review before checkout."
+        "text": "{{ $json.stdout.split('\\n').filter(l => l.includes('RESULT:')).join('\\n') || 'build-week returned no RESULT line' }}\n\nYour default week was auto-filled from the template (only empty days; anything you already planned or edited is untouched).\n\nReminders (5 minutes):\n1. Tandoor -> Foods: mark what you actually have as 'on hand' \u2014 sync subtracts it from the order\n2. Tandoor -> Meal Plan: tweak next week if you want (your edits stick)\n3. Kroger app: clear the cart from last week\n\nTomorrow 8am: n8n syncs plan + pantry into delivery-list.md, fills the Kroger cart, and emails the summary. You still review before checkout."
       },
       "id": "email-nudge",
       "name": "Email: pantry nudge",
@@ -93,5 +93,5 @@
     "executionOrder": "v1"
   },
   "id": "blsnWwftvqD7WLXS",
-  "active": false
+  "active": true
 }
